@@ -11,11 +11,12 @@ import Link from 'next/link';
 const links = [
   { name: 'Home', href: '/dashboard', icon: HomeIcon },
   {
-    name: 'Invoices',
-    href: '/dashboard/invoices',
+    name: 'Bulk SMS Campaign',
+    href: '/dashboard/Campaigns ',
     icon: DocumentDuplicateIcon,
   },
   { name: 'Customers', href: '/dashboard/customers', icon: UserGroupIcon },
+  { name: 'Delivery Report', href: '/dashboard/Reports ', icon: UserGroupIcon },
 ];
 
 export default function NavLinks() {
