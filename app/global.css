@@ -1,0 +1,15 @@
+/* styles.css */
+.speedDialButton {
+    width: 36px;
+    height: 36px;
+    background-color: red; /* Custom background color */
+  }
+  
+  .speedDialButton:hover {
+    background-color: blue; /* Custom hover background color */
+  }
+  
+  .smallSpeedDial {
+    transform: scale(0.8); /* Adjust scale for smaller size */
+  }
+  

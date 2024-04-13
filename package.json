@@ -2,32 +2,45 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "start": "next start",
+    "export": "next export",
     "dev": "next dev",
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
-    "start": "next start",
     "seed": "node -r dotenv/config ./scripts/seed.js"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.0.18",
+    "@material-tailwind/react": "^2.1.9",
+    "@mui/icons-material": "^5.15.14",
+    "@mui/material": "^5.15.14",
+    "@mui/x-charts": "^7.1.0",
     "@tailwindcss/forms": "^0.5.7",
     "@types/node": "20.5.7",
     "@vercel/postgres": "^0.5.1",
+    "apexcharts": "^3.45.2",
     "autoprefixer": "10.4.15",
     "bcrypt": "^5.1.1",
     "clsx": "^2.0.0",
+    "crypto-js": "^4.2.0",
     "express-fileupload": "^1.4.3",
+    "flatpickr": "^4.6.13",
+    "flowbite": "^2.3.0",
     "formidable": "^3.5.1",
     "https-proxy-agent": "^5.0.0",
+    "jsvectormap": "^1.5.3",
     "net": "^1.0.2",
     "next": "^14.0.2",
     "next-auth": "^5.0.0-beta.15",
     "path": "^0.12.7",
     "postcss": "8.4.31",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "react": "^17.0.0 || ^18.0.0",
+    "react-apexcharts": "^1.4.1",
+    "react-dom": "^17.0.0 || ^18.0.0",
     "react-feather": "^2.0.10",
     "tailwindcss": "3.3.3",
     "twilio": "^4.20.1",
@@ -48,5 +61,9 @@
   },
   "engines": {
     "node": ">=18.17.0"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0"
   }
 }

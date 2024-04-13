@@ -84,6 +84,9 @@ export default function OTPForm() {
         >
           Submit OTP
         </button>
+        <button className="bg-red-500" mr-2>
+          Regenerate OTP
+        </button>
         {errorMessage && <p className="mt-2 text-red-500">{errorMessage}</p>}
       </form>
     </div>

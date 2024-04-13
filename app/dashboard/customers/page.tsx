@@ -4,9 +4,27 @@ import { Modal } from '@/app/Shared/Modal';
 import { TableLayout } from '@/app/Shared/Tablelayout';
 import { Trash2 } from 'react-feather';
 import { useGroup } from '@/app/GroupContext';
+import SpeedDial from '@mui/material/SpeedDial';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TablePagination from '@mui/material/TablePagination';
+import TableRow from '@mui/material/TableRow';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import Paper from '@mui/material/Paper';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import MenuItem from '@mui/material/MenuItem';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { setFlagsFromString } from 'v8';
 
 export const Customer = () => {
   const [showAddGroupForm, setShowAddGroupForm] = useState(false);
+  const [showEditGroupForm, setShowEditGroupForm] = useState(false);
   const [showImportCustomersForm, setShowImportCustomersForm] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [data, setData] = useState([]);
@@ -14,24 +32,29 @@ export const Customer = () => {
   const handleGroupNameChange = (e) => {
     setNewGroupName(e.target.value);
   };
+  const [rows, setRows] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [showActions, setShowActions] = useState(null);
 
-  const handleAddGroup = () => {
-    const newGroup = {
-      groupName: newGroupName,
-      totalCustomers: 0,
-      createdDate: new Date().toLocaleDateString(),
-    };
+  // const handleAddGroup = () => {
+  //   const newGroup = {
+  //     groupName: newGroupName,
+  //     totalCustomers: 0,
+  //     createdDate: new Date().toLocaleDateString(),
+  //   };
 
-    setData([...data, newGroup]);
-    setNewGroupName('');
+  //   setData([...data, newGroup]);
+  //   setNewGroupName('');
 
-    // Update the list of available groups in the context
-    addGroup(newGroupName);
+  //   // Update the list of available groups in the context
+  //   addGroup(newGroupName);
 
-    // Use the selectGroup function to update the selected group in the context
-    selectGroup(newGroupName);
-    setShowAddGroupForm(false);
-  };
+  //   // Use the selectGroup function to update the selected group in the context
+  //   selectGroup(newGroupName);
+  //   setShowAddGroupForm(false);
+  // };
   useEffect(() => {
     // Access selectedGroup here or perform any other logic based on its changes
     console.log('Selected Group:', selectedGroup);
@@ -73,6 +96,15 @@ export const Customer = () => {
     // Close the modal after handling the file upload
     setShowImportCustomersForm(false);
   };
+  const handleEdit = (id: number) => {
+    // setEditRowId(id);
+    setShowEditGroupForm(true);
+
+    console.log('Edit row with ID:', id);
+
+    const authToken = localStorage.getItem('token');
+    console.log(authToken);
+  };
 
   const handleImportCustomers = () => {
     // Set the state to indicate that the modal should be shown
@@ -93,6 +125,78 @@ export const Customer = () => {
       selectGroup(null);
     }
   };
+  const addRow = () => {
+    setShowAddGroupForm(true);
+  };
+  const editgroup = () => {
+    setShowEditGroupForm(true);
+  };
+
+  const handleAddGroup = () => {
+    const newGroup = {
+      id: rows.length + 1, // Add a unique id for each new row
+      groupName: newGroupName,
+      totalCustomers: 0,
+      createdDate: new Date().toLocaleDateString(),
+    };
+
+    setRows([...rows, newGroup]);
+    setNewGroupName('');
+
+    // Update the list of available groups in the context
+    addGroup(newGroupName);
+
+    // Use the selectGroup function to update the selected group in the context
+    selectGroup(newGroupName);
+    setShowAddGroupForm(false);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelecteds = rows.map((n) => n.id);
+      setSelected(newSelecteds);
+      return;
+    }
+    setSelected([]);
+  };
+
+  const handleClick = (event, id) => {
+    const selectedIndex = selected.indexOf(id);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1),
+      );
+    }
+
+    setSelected(newSelected);
+  };
+
+  const isSelected = (id) => selected.indexOf(id) !== -1;
+  const deleteRow = (id) => {
+    setRows(rows.filter((row) => row.id !== id));
+  };
+  const handleEditClick = (id) => {
+    // Logic for handling edit action
+    console.log('Edit clicked for id:', id);
+  };
 
   return (
     <div>
@@ -101,6 +205,7 @@ export const Customer = () => {
           display: 'flex',
           justifyContent: 'space-between',
           gap: '10px',
+          marginBottom: '10px', // Add margin between buttons and table
         }}
       >
         {/* Add Group Modal */}
@@ -126,15 +231,7 @@ export const Customer = () => {
               placeholder="Group Name"
             />
             <button
-              style={{
-                backgroundColor: '#3498db',
-                color: '#fff',
-                borderRadius: '4px',
-                padding: '8px',
-                cursor: 'pointer',
-                outline: 'none',
-                marginTop: '10px',
-              }}
+              className="mt-10 cursor-pointer rounded bg-red-500 px-4 py-2 font-bold text-white outline-none hover:bg-red-700"
               onClick={handleAddGroup}
             >
               Add Group
@@ -195,23 +292,46 @@ export const Customer = () => {
             </button>
           </div>
         </Modal>
-
+        {/* edit group modal */}
+        {showEditGroupForm && (
+          <Modal
+            title="Edit Group"
+            isOpen={showEditGroupForm}
+            setIsOpen={setShowEditGroupForm}
+          >
+            <div style={{ padding: '16px' }}>
+              <label>Enter Group Name:</label>
+              <input
+                type="text"
+                value={newGroupName}
+                onChange={handleGroupNameChange}
+                style={{
+                  borderWidth: '1px',
+                  borderColor: '#3498db',
+                  borderRadius: '4px',
+                  padding: '8px',
+                  outline: 'none',
+                  width: '100%',
+                }}
+                placeholder="Group Name"
+              />
+              <button
+                className="mt-10 cursor-pointer rounded bg-red-500 px-4 py-2 font-bold text-white outline-none hover:bg-red-700"
+                onClick={handleAddGroup}
+              >
+                Edit group
+              </button>
+            </div>
+          </Modal>
+        )}
         {/* Add Customer Group Button */}
-        <button
-          style={{
-            backgroundColor: '#3498db',
-            color: '#fff',
-            borderRadius: '4px',
-            padding: '8px',
-            cursor: 'pointer',
-            outline: 'none',
-          }}
+        {/* <button
+          className="rounded-full bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-800"
           onClick={() => setShowAddGroupForm(true)}
         >
           <span>Add Customer Group</span>
-        </button>
+        </button> */}
 
-        {/* Import Customers Button */}
         {/* Import Customers Button */}
         <label
           style={{
@@ -237,46 +357,145 @@ export const Customer = () => {
           onChange={() => setShowImportCustomersForm(true)}
         />
       </div>
-
       <div>
-        <TableLayout>
-          <table className="table w-full">
-            <thead className="thead">
-              <tr>
-                <th scope="col" className="th w-1/4 text-left">
-                  Group Name
-                </th>
-                <th scope="col" className="th w-1/4 text-left">
-                  Total Customers
-                </th>
-                <th scope="col" className="th w-1/4 text-left">
-                  Created Date
-                </th>
-                <th scope="col" className="th w-1/4 text-left">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="tbody">
-              {data.map((item, index) => (
-                <tr key={index} className="tr">
-                  <td className="td w-1/4 text-left">{item.groupName}</td>
-                  <td className="td w-1/4 text-left">{item.totalCustomers}</td>
-                  <td className="td w-1/4 text-left">{item.createdDate}</td>
-                  <td className="td w-1/4">
-                    <button
-                      onClick={() => handleDelete(index)}
-                      className="flex w-full cursor-pointer items-center justify-center rounded border border-red-500 px-3 py-1 text-red-500 hover:bg-red-50"
-                    >
-                      <Trash2 className="mr-2 text-base" />
-                      <span>Delete</span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </TableLayout>
+        <div>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={addRow}
+            style={{ backgroundColor: 'gray' }}
+          >
+            Add Group
+          </Button>
+          <TableContainer component={Paper}>
+            <Table aria-label="dynamic table">
+              <TableHead>
+                <TableRow>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      indeterminate={
+                        selected.length > 0 && selected.length < rows.length
+                      }
+                      checked={
+                        rows.length > 0 && selected.length === rows.length
+                      }
+                      onChange={handleSelectAllClick}
+                      inputProps={{ 'aria-label': 'select all desserts' }}
+                    />
+                  </TableCell>
+                  <TableCell>Group Name</TableCell>
+                  <TableCell>Total Customers</TableCell>
+                  <TableCell>Created Date</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => {
+                    const isItemSelected = isSelected(row.id);
+                    const labelId = `enhanced-table-checkbox-${index}`;
+
+                    return (
+                      <TableRow
+                        hover
+                        onClick={(event) => handleClick(event, row.id)}
+                        role="checkbox"
+                        aria-checked={isItemSelected}
+                        tabIndex={-1}
+                        key={row.id}
+                        selected={isItemSelected}
+                      >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={isItemSelected}
+                            inputProps={{ 'aria-labelledby': labelId }}
+                          />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="none"
+                        >
+                          {row.groupName}
+                        </TableCell>
+                        <TableCell>{row.totalCustomers}</TableCell>
+                        <TableCell>{row.createdDate}</TableCell>
+                        <TableCell>
+                          <div className="relative">
+                            <div className="bg-blue absolute right-0 top-0 mt-2 rounded p-2 shadow-lg ">
+                              {showActions === row.id && (
+                                <>
+                                  <MenuItem
+                                    onClick={() => handleEdit(row.id)}
+                                    sx={{
+                                      backgroundColor: 'gray',
+                                      '&:hover': { backgroundColor: 'blue' },
+                                    }}
+                                  >
+                                    Edit
+                                  </MenuItem>
+                                  <MenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation(); // Prevent row selection
+                                      deleteRow(row.id);
+                                    }}
+                                    sx={{
+                                      backgroundColor: 'gray',
+                                      '&:hover': { backgroundColor: 'red' },
+                                    }}
+                                  >
+                                    Delete
+                                  </MenuItem>
+                                  <MenuItem
+                                    onClick={() => handleactivate(row.id)}
+                                    sx={{
+                                      backgroundColor: 'gray',
+                                      '&:hover': { backgroundColor: 'green' },
+                                    }}
+                                  >
+                                    Activate user
+                                  </MenuItem>
+                                  <MenuItem
+                                    sx={{
+                                      backgroundColor: 'gray',
+                                      '&:hover': { backgroundColor: 'orange' },
+                                    }}
+                                  >
+                                    Deactivate user
+                                  </MenuItem>
+                                </>
+                              )}
+                            </div>
+                            <IconButton
+                              aria-label="actions"
+                              onClick={() =>
+                                setShowActions(
+                                  showActions === row.id ? null : row.id,
+                                )
+                              }
+                            >
+                              <MoreVertIcon />
+                            </IconButton>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </div>
       </div>
     </div>
   );
