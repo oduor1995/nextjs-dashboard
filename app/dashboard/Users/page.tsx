@@ -1,5 +1,7 @@
 'use client';
 import React, { use, useState } from 'react';
+import jwt from 'jsonwebtoken';
+import { jwtDecode } from 'jwt-decode';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -21,8 +23,10 @@ import { UserIcon } from '@heroicons/react/24/outline';
 import { setFlagsFromString } from 'v8';
 import { EditUserForm } from '@/app/ui/dashboard/EditUserForm';
 import { seteuid } from 'process';
+import { useEffect } from 'react';
 
 function CustomTable() {
+  const [clientId, setClientId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [showTable, setShowTable] = useState(true);
   const [showEditUserForm, setShowEditUserForm] = useState(false);
@@ -49,7 +53,7 @@ function CustomTable() {
     },
   });
 
-  const [rows, setRows] = useState([
+  const [rows, setRows] = useState<any>([
     {
       id: 1,
       name: 'collins oduor',
@@ -61,15 +65,63 @@ function CustomTable() {
     },
     // Initial row data
   ]);
+  useEffect(() => {
+    const decodeToken = () => {
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('token');
+        if (token) {
+          try {
+            const decoded: any = jwt.decode(token, { complete: true });
+            if (decoded) {
+              console.log('Decoded JWT:', decoded);
+              const clientId = decoded.payload.client_id;
+              console.log('Client ID:', clientId);
+              setClientId(clientId); // Set clientId state
+            }
+          } catch (error) {
+            console.error('Invalid token', error);
+          }
+        } else {
+          console.error('Token not found in local storage');
+        }
+      } else {
+        console.warn(
+          'Window object is not defined, unable to access localStorage',
+        );
+      }
+    };
+
+    decodeToken(); // Call the decodeToken function
+  }, []);
 
   const handleClick = () => {
     setShowForm(true);
     setShowTable(false);
   };
 
-  const addNewRow = async (formData, row.id) => {
-    setSelectedRowId(row.id);
-    console.log('Selected row id:', selectedRowId);
+  function parseJwt(token: string) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(
+      window
+        .atob(base64)
+        .split('')
+        .map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join(''),
+    );
+
+    return JSON.parse(jsonPayload);
+  }
+
+  const addNewRow = async (formData: any, clientId: any) => {
+    setSelectedRowId(rows.id);
+    const token = localStorage.getItem('accessToken');
+    console.log(token);
+    const decoded: any = jwtDecode(token);
+    console.log('Decoded JWT:', decoded);
+    console.log('Selected row id:', clientId);
     const authToken = localStorage.getItem('accessToken');
     try {
       // Call the API to create a new user
@@ -103,9 +155,6 @@ function CustomTable() {
       console.error('Error creating user:', error);
       // Handle error behavior here, such as displaying an error message
     }
-  };
-  const MyExample = (id) => {
-    console.log('Edit row with ID:', id);
   };
 
   const handleEdit = async (formData: any, id: any) => {
@@ -164,7 +213,7 @@ function CustomTable() {
         </div>
         {showForm && (
           <RegistrationForm
-            onSubmit={(formData) => addNewRow(formData, row.id)}
+            onSubmit={(formData) => addNewRow(formData, rows.id)}
             id={selectedRowId}
           />
         )}

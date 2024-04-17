@@ -13,7 +13,8 @@
     "strict": false, //disable strict type checking
     // "noUnusedLocals": false, // Disable checking unused locals
     // "noUnusedParameters": false, // Disable checking unused parameters
-    "noEmit": true,
+    
+    "noEmit": false,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -39,8 +40,9 @@
     ".next/types/**/*.ts",
     "app/lib/placeholder-data.js",
     "scripts/seed.js"
-, "app/GroupContext.js", "app/dashboard/customers/page.ts", "app/lib/encryption.tsx"  ],
+, "app/GroupContext.js", "app/lib/encryption.tsx", "app/dashboard/customers/page.js"  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "app/dashboard/customers/page.ts"
   ]
 }

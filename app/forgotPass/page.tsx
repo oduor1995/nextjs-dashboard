@@ -1,8 +1,9 @@
 'use client';
 import { useState, ChangeEvent, FormEvent } from 'react';
+import AccessToken from 'twilio/lib/jwt/AccessToken';
 
 interface ForgotPasswordProps {
-  devUrl: string;
+  devUrl: any;
 }
 
 const ForgotPassword: React.FC<ForgotPasswordProps> = ({ devUrl }) => {
@@ -10,16 +11,21 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ devUrl }) => {
   const [message, setMessage] = useState<string>('');
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    const authToken = localStorage.getItem('accessToken');
     e.preventDefault();
 
     try {
-      const response = await fetch(`${devUrl}/api/v3/password-reset-link`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'https://api-finserve-dev.finserve.africa/user-manager/api/v1/client-user/password/reset-link',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
         },
-        body: JSON.stringify({ email }),
-      });
+      );
 
       if (response.ok) {
         setMessage('Password reset link sent successfully.');

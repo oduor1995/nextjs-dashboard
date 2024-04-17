@@ -1,12 +1,6 @@
 'use client';
 import { lusitana } from '@/app/ui/fonts';
 import React from 'react';
-import App, { DashboardCard } from '../ui/dashboard/card';
-import { ECommerce } from '@/app/src/components/Dashboard/E-commerce';
-import { DefaultLayout } from '@/app/src/components/Layouts/DefaultLayout';
-import Chart from '../src/components/Charts/page';
-import { DarkModeToggle } from '../DarkModeToggle';
-import { BasicSpeedDial } from '../speeddial/page';
 import { ActionAreaCard } from '@/app/ui/dashboard/card';
 import { SimpleLineChart } from '@/app/ui/dashboard/charts';
 
